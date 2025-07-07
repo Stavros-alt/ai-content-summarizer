@@ -28,7 +28,7 @@ An AI-powered desktop application that summarizes long articles, reports, or any
 
 3. **Download the application**:
    ```bash
-   git clone https://github.com/yourusername/ai-content-summarizer.git
+   git clone https://github.com/Stavros-alt/ai-content-summarizer.git
    cd ai-content-summarizer
    ```
 
