@@ -37,7 +37,7 @@ def generate_summary(text, num_sentences=3):
     Generates an extractive summary of a given text using spaCy.
     """
     if not text.strip():
-        return "No text provided for summarization", 0, 0
+        return "No text provided for summarization"
 
     # Create a spaCy document object
     doc = nlp(text)
@@ -49,12 +49,12 @@ def generate_summary(text, num_sentences=3):
     word_frequencies = Counter(keywords)
     
     if not word_frequencies:
-        return "Text contains only stopwords/punctuation", len(doc), 0
+        return "Text contains only stopwords/punctuation"
 
     # 3. Normalize frequencies (divide by the max frequency)
     max_frequency = max(word_frequencies.values(), default=1)
     if max_frequency == 0:
-        return "No meaningful content found", len(doc), 0
+        return "No meaningful content found"
 
     # Create a separate dictionary for normalized frequencies
     normalized_frequencies = {
@@ -79,7 +79,7 @@ def generate_summary(text, num_sentences=3):
     # 6. Join them to form the final summary
     final_summary = [sentence.text for sentence in summarized_sentences]
     
-    return " ".join(final_summary), len(doc), len(final_summary)
+    return " ".join(final_summary)
 # --- 2. THE GUI APPLICATION ---
 class App:
     def __init__(self, root):
@@ -161,16 +161,26 @@ class App:
                 messagebox.showerror("Input Error", "Number of sentences must be a positive integer.")
                 return
 
-            summary, original_len, summary_len = generate_summary(input_text, num_sents)
+            summary = generate_summary(input_text, num_sents)
             
             self.output_text.config(state="normal")
             self.output_text.delete("1.0", tk.END)
             self.output_text.insert("1.0", summary)
             self.output_text.config(state="disabled")
             
+            # Calculate word counts
+            original_words = input_text.split()
+            summary_words = summary.split()
+            
             self.stats_text.config(state="normal")
             self.stats_text.delete("1.0", tk.END)
-            stats = f"Original: {original_len} words | Summary: {summary_len} sentences | Reduction: {((original_len - summary_len)/original_len)*100:.1f}%"
+            
+            if original_words:
+                reduction = 100 - (len(summary_words) / len(original_words) * 100)
+                stats = f"Original: {len(original_words)} words | Summary: {len(summary_words)} words | Reduction: {reduction:.1f}%"
+            else:
+                stats = "Original: 0 words | Summary: 0 words | Reduction: 0%"
+                
             self.stats_text.insert("1.0", stats)
             self.stats_text.config(state="disabled")
             logger.info(f"Summarization complete - {stats}")
